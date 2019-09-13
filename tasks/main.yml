@@ -1,0 +1,37 @@
+---
+# tasks file for ansible-role-telegraf
+
+- include_vars: "{{ ansible_os_family }}.yml"
+
+- include: "install-{{ ansible_os_family }}.yml"
+
+- name: Create log directory
+  file:
+    path: "{{ telegraf_log_dir }}"
+    mode: 0755
+    owner: "{{ telegraf_user }}"
+    group: "{{ telegraf_group }}"
+    state: directory
+  notify: Restart telegraf
+
+- name: Create db directory
+  file:
+    path: "{{ telegraf_db_dir }}"
+    mode: 0755
+    owner: "{{ telegraf_user }}"
+    group: "{{ telegraf_group }}"
+    state: directory
+  notify: Restart telegraf
+
+- name: Create telegraf.conf
+  template:
+    src: telegraf.conf.j2
+    dest: "{{ telegraf_conf_file }}"
+    validate: echo %s
+  notify: Restart telegraf
+
+- name: Start telegraf
+  service:
+    name: "{{ telegraf_service }}"
+    enabled: true
+    state: started

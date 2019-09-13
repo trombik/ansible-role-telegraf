@@ -1,0 +1,3 @@
+---
+__telegraf_db_dir: /var/db/telegraf
+__telegraf_conf_dir: /usr/local/etc/telegraf

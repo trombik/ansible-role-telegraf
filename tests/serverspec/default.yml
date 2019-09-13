@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  roles:
+    - ansible-role-telegraf
+  vars:
+    telegraf_config: ""
