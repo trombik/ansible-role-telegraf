@@ -6,30 +6,50 @@ service = "telegraf"
 config  = "/etc/telegraf/telegraf.conf"
 user    = "telegraf"
 group   = "telegraf"
-ports   = [PORTS]
+ports   = [8094]
 log_dir = "/var/log/telegraf"
+log_file= "#{log_dir}/telegraf.log"
 db_dir  = "/var/lib/telegraf"
+default_user = "root"
+default_group = "root"
 
 case os[:family]
 when "freebsd"
   config = "/usr/local/etc/telegraf.conf"
   db_dir = "/var/db/telegraf"
+  default_group = "wheel"
 end
 
 describe package(package) do
   it { should be_installed }
 end
 
+
 describe file(config) do
+  it { should exist }
   it { should be_file }
-  its(:content) { should match Regexp.escape("telegraf") }
+  it { should be_mode 644 }
+  it { should be_owned_by default_user }
+  it { should be_grouped_into default_group }
+  its(:content) { should match(/# Managed by ansible/) }
+  its(:content) { should match(/\[\[outputs\.influxdb\]\]/) }
 end
 
 describe file(log_dir) do
   it { should exist }
-  it { should be_mode 755 }
+  it { should be_mode 750 }
   it { should be_owned_by user }
   it { should be_grouped_into group }
+end
+
+describe file log_file do
+  it { should exist }
+  it { should be_file }
+  it { should be_mode 644 }
+  it { should be_owned_by user }
+  it { should be_grouped_into group }
+  its(:content) { should match(/Successfully connected to output: influxdb/) }
+  its(:content) { should_not match(/\s+E!\s+/) }
 end
 
 describe file(db_dir) do
@@ -43,6 +63,8 @@ case os[:family]
 when "freebsd"
   describe file("/etc/rc.conf.d/telegraf") do
     it { should be_file }
+    its(:content) { should match(/# Managed by ansible/) }
+    its(:content) { should match(/telegraf_flags="-debug"/) }
   end
 end
 
