@@ -21,6 +21,17 @@ None
 | `telegraf_config` | Content of `telegraf.conf` | `""` |
 | `telegraf_flags` | Flags for `telegraf` service | `""` |
 
+## Debian
+
+| Variable | Default |
+|----------|---------|
+| `__telegraf_user` | `telegraf` |
+| `__telegraf_group` | `telegraf` |
+| `__telegraf_package` | `telegraf` |
+| `__telegraf_db_dir` | `/var/lib/telegraf` |
+| `__telegraf_service` | `telegraf` |
+| `__telegraf_conf_dir` | `/etc/telegraf` |
+| `__telegraf_log_dir` | `/var/log/telegraf` |
 
 ## FreeBSD
 
@@ -44,12 +55,20 @@ None
 ---
 - hosts: localhost
   roles:
+    - trombik.apt_repo
     - trombik.influxdb
     - ansible-role-telegraf
   vars:
+    apt_repo_keys_to_add:
+      - https://repos.influxdata.com/influxdb.key
+    apt_repo_to_add: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    apt_repo_enable_apt_transport_https: yes
+
     flags:
       FreeBSD: |
         telegraf_flags="-debug"
+      Debian: |
+        TELEGRAF_OPTS="-debug"
     telegraf_flags: "{{ flags[ansible_os_family] }}"
     telegraf_config: |
       [global_tags]

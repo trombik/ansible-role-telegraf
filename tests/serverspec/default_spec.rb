@@ -47,7 +47,7 @@ describe file log_file do
   it { should be_mode 644 }
   it { should be_owned_by user }
   it { should be_grouped_into group }
-  its(:content) { should match(/Successfully connected to output: influxdb/) }
+  its(:content) { should match(/Successfully connected to (output: influxdb|outputs.influxdb)/) }
   its(:content) { should_not match(/\s+E!\s+/) }
 end
 
@@ -64,6 +64,12 @@ when "freebsd"
     it { should be_file }
     its(:content) { should match(/# Managed by ansible/) }
     its(:content) { should match(/telegraf_flags="-debug"/) }
+  end
+when "ubuntu"
+  describe file("/etc/default/telegraf") do
+    it { should be_file }
+    its(:content) { should match(/# Managed by ansible/) }
+    its(:content) { should match(/TELEGRAF_OPTS="-debug"/) }
   end
 end
 
