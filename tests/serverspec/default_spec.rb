@@ -8,8 +8,8 @@ user    = "telegraf"
 group   = "telegraf"
 ports   = [8094]
 log_dir = "/var/log/telegraf"
-log_file= "#{log_dir}/telegraf.log"
-db_dir  = "/var/lib/telegraf"
+log_file = "#{log_dir}/telegraf.log"
+db_dir = "/var/lib/telegraf"
 default_user = "root"
 default_group = "root"
 
@@ -23,7 +23,6 @@ end
 describe package(package) do
   it { should be_installed }
 end
-
 
 describe file(config) do
   it { should exist }
