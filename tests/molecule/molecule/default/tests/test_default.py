@@ -34,6 +34,13 @@ def read_remote_file(host, filename):
     return f.content.decode('utf-8')
 
 
+def get_server_address(host):
+    if is_docker(host):
+        return 'server1'
+    else:
+        '192.168.21.200'
+
+
 def is_docker(host):
     ansible_facts = get_ansible_facts(host)
     if 'ansible_virtualization_type' in ansible_facts:
@@ -95,8 +102,9 @@ def test_influxdb_series(host):
     ansible_vars = get_ansible_vars(host)
     if ansible_vars['inventory_hostname'] == 'client1':
         return
+    server_address = get_server_address(host)
     format_str = "influx -username '%s' -password '%s' -host '%s' -database '%s' -execute '%s'"
-    cmd = format_str % ('foo', 'PassWord', '192.168.21.200', 'mydatabase', 'show series')
+    cmd = format_str % ('foo', 'PassWord', server_address, 'mydatabase', 'show series')
     output = host.check_output(cmd)
 
     assert 'cpu,cpu=cpu-total,host=client1' in output

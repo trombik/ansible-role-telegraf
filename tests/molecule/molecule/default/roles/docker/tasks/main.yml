@@ -38,14 +38,6 @@
   user:
     name: vagrant
 
-- name: Install rsyslog
-  package:
-    name: "{{ docker_package_rsyslog }}"
-    state: present
-  when:
-    - ansible_os_family != 'FreeBSD'
-    - ansible_os_family != 'OpenBSD'
-
 - name: Start rsyslog
   service:
     name: "{{ docker_service_rsyslog }}"

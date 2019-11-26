@@ -3,8 +3,8 @@ project_influxdb_address: "{% if ansible_virtualization_type == 'docker' %}serve
 project_influxdb_port: 8086
 
 os_project_telegraf_listener_address:
-  FreeBSD: "{{ ansible_em1['ipv4'][0]['address']  }}"
-  Debian: "{{ ansible_eth1['ipv4']['address']  }}"
+  FreeBSD: "{{ ansible_em1['ipv4'][0]['address'] | default(omit) }}"
+  Debian: "{{ ansible_eth1['ipv4']['address'] | default(omit) }}"
 project_telegraf_listener_address: "{{ os_project_telegraf_listener_address[ansible_os_family] }}"
 project_telegraf_listener_port: 8094
 
@@ -20,7 +20,10 @@ freebsd_pkg_repo:
     priority: 100
 apt_repo_keys_to_add:
   - https://repos.influxdata.com/influxdb.key
-apt_repo_to_add: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+  - https://packages.grafana.com/gpg.key
+apt_repo_to_add:
+  - "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+  - "deb https://packages.grafana.com/oss/deb stable main"
 apt_repo_enable_apt_transport_https: yes
 
 # __________________________________________telegraf
