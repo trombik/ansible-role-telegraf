@@ -31,6 +31,9 @@
     - role: docker
       when:
         - ansible_virtualization_type == 'docker'
+    - role: trombik.apt_repo
+      when:
+        - ansible_os_family == 'Debian'
     - role: trombik.influxdb
       when:
         - ansible_hostname == 'server1'
