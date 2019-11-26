@@ -1,9 +1,10 @@
 ---
-project_influxdb_address: 192.168.21.200
+project_influxdb_address: "{% if ansible_virtualization_type == 'docker' %}server1{% else %}192.168.21.200{% endif %}"
 project_influxdb_port: 8086
 
 os_project_telegraf_listener_address:
   FreeBSD: "{{ ansible_em1['ipv4'][0]['address']  }}"
+  Debian: "{{ ansible_eth1['ipv4']['address']  }}"
 project_telegraf_listener_address: "{{ os_project_telegraf_listener_address[ansible_os_family] }}"
 project_telegraf_listener_port: 8094
 

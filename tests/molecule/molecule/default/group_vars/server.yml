@@ -8,12 +8,14 @@ influxdb_tls: no
 project_infraxdb_rpc_port: 8088
 os_project_infraxdb_rpc_bind_address:
   FreeBSD: "{{ ansible_em1['ipv4'][0]['address'] | default(omit) }}"
+  Debian: "{{ ansible_eth1['ipv4']['address'] | default(omit) }}"
 # XXX address
 project_infraxdb_rpc_bind_address: "{{ os_project_infraxdb_rpc_bind_address[ansible_os_family] }}"
 
 project_influxdb_bind_port: 8086
 os_influxdb_bind_address:
   FreeBSD: "{{ ansible_em1['ipv4'][0]['address'] | default(omit) }}"
+  Debian: "{{ ansible_eth1['ipv4']['address'] | default(omit) }}"
 # XXX address:port
 influxdb_bind_address: "{{ os_influxdb_bind_address[ansible_os_family] }}:{{ project_influxdb_bind_port }}"
 
@@ -71,6 +73,7 @@ influxdb_config: |
 os_grafana_flags:
   FreeBSD: |
     grafana_conf={{ grafana_conf_file }}
+  Debian: ""
 
 grafana_flags: "{{ os_grafana_flags[ansible_os_family] }}"
 grafana_admin_user: admin
@@ -78,6 +81,7 @@ grafana_admin_password: PassWord
 
 os_grafana_addr:
   FreeBSD: "{{ ansible_em1['ipv4'][0]['address'] | default(omit) }}"
+  Debian: "{{ ansible_eth1['ipv4']['address'] | default(omit) }}"
 grafana_addr: "{{ os_grafana_addr[ansible_os_family] }}"
 grafana_provisioning_files:
   - name: datasources/influxdb.yml
