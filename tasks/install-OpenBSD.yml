@@ -1,0 +1,16 @@
+---
+
+- name: Install telegraf
+  openbsd_pkg:
+    name: "{{ telegraf_package }}"
+    state: present
+  notify:
+    - Restart telegraf
+
+- name: Enable telegraf
+  service:
+    name: "{{ telegraf_service }}"
+    arguments: "{{ telegraf_flags }}"
+    enabled: yes
+  notify:
+    - Restart telegraf
