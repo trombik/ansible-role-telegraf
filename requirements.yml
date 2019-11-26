@@ -2,3 +2,4 @@
 
 - name: trombik.influxdb
 - name: trombik.apt_repo
+- name: trombik.freebsd_pkg_repo

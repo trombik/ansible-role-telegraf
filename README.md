@@ -45,6 +45,18 @@ None
 | `__telegraf_conf_dir` | `/usr/local/etc` |
 | `__telegraf_log_dir` | `/var/log/telegraf` |
 
+## OpenBSD
+
+| Variable | Default |
+|----------|---------|
+| `__telegraf_user` | `_telegraf` |
+| `__telegraf_group` | `_telegraf` |
+| `__telegraf_package` | `telegraf` |
+| `__telegraf_db_dir` | `/var/telegraf` |
+| `__telegraf_service` | `telegraf` |
+| `__telegraf_conf_dir` | `/etc/telegraf` |
+| `__telegraf_log_dir` | `/var/log/telegraf` |
+
 # Dependencies
 
 None
@@ -55,21 +67,37 @@ None
 ---
 - hosts: localhost
   roles:
-    - trombik.apt_repo
-    - trombik.influxdb
-    - ansible-role-telegraf
+    - role: trombik.freebsd_pkg_repo
+      when:
+        - ansible_os_family == 'FreeBSD'
+    - role: trombik.apt_repo
+      when:
+        - ansible_os_family == 'Debian'
+    - role: trombik.influxdb
+    - role: ansible-role-telegraf
   vars:
+    freebsd_pkg_repo:
+      FreeBSD_latest:
+        enabled: "true"
+        state: present
+        # use a mirror in Asia
+        url: pkg+http://pkg0.twn.freebsd.org/${ABI}/latest
+        mirror_type: srv
+        signature_type: fingerprints
+        fingerprints: /usr/share/keys/pkg
+        priority: 100
     apt_repo_keys_to_add:
       - https://repos.influxdata.com/influxdb.key
     apt_repo_to_add: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
     apt_repo_enable_apt_transport_https: yes
 
-    flags:
+    os_telegraf_flags:
       FreeBSD: |
         telegraf_flags="-debug"
       Debian: |
         TELEGRAF_OPTS="-debug"
-    telegraf_flags: "{{ flags[ansible_os_family] }}"
+      OpenBSD: -debug
+    telegraf_flags: "{{ os_telegraf_flags[ansible_os_family] }}"
     telegraf_config: |
       [global_tags]
       [agent]
@@ -102,8 +130,10 @@ None
         data_format = "influx"
 
       # broken at the moment. https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=240570
-      #[[inputs.swap]]
-      [[inputs.system]]
+      # [[inputs.swap]]
+      #
+      # does not work on OpenBSD
+      # [[inputs.system]]
       [[outputs.influxdb]]
         urls = ["http://127.0.0.1:8086"]
         database = "mydatabase"

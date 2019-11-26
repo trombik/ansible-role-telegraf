@@ -18,6 +18,11 @@ when "freebsd"
   config = "/usr/local/etc/telegraf.conf"
   db_dir = "/var/db/telegraf"
   default_group = "wheel"
+when "openbsd"
+  user = "_telegraf"
+  group = "_telegraf"
+  db_dir = "/var/telegraf"
+  default_group = "wheel"
 end
 
 describe package(package) do
@@ -70,6 +75,11 @@ when "ubuntu"
     it { should be_file }
     its(:content) { should match(/# Managed by ansible/) }
     its(:content) { should match(/TELEGRAF_OPTS="-debug"/) }
+  end
+
+when "openbsd"
+  describe file("/etc/rc.conf.local") do
+    its(:content) { should match(/telegraf_flags=-debug/) }
   end
 end
 
