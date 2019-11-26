@@ -7,18 +7,6 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def get_service_name(host):
-    if host.system_info.distribution == 'freebsd':
-        return 'openssh'
-    if host.system_info.distribution == 'openbsd':
-        return 'sshd'
-    elif host.system_info.distribution == 'ubuntu':
-        return 'sshd'
-    elif host.system_info.distribution == 'centos':
-        return 'sshd'
-    raise NameError('Unknown distribution')
-
-
 def get_ansible_vars(host):
     return host.ansible.get_variables()
 
@@ -61,18 +49,6 @@ def read_digest(host, filename):
     return read_remote_file(client1, filename)
 
 
-def get_listen_ports(host):
-    if host.system_info.distribution == 'freebsd':
-        return [22, 10022]
-    if host.system_info.distribution == 'openbsd':
-        return [22, 10022]
-    elif host.system_info.distribution == 'ubuntu':
-        return [22, 10022]
-    elif host.system_info.distribution == 'centos':
-        return [22]
-    raise NameError('Unknown distribution')
-
-
 def test_hosts_file(host):
     f = host.file('/etc/hosts')
 
@@ -99,22 +75,6 @@ def test_icmp_from_server(host):
         assert cmd.succeeded
 
 
-def test_service(host):
-    s = host.service(get_service_name(host))
-
-    # XXX in docker, host.service() does not work
-    if not is_docker(host):
-        assert s.is_running
-        assert s.is_enabled
-
-
-def test_port(host):
-    ports = get_listen_ports(host)
-
-    for p in ports:
-        assert host.socket("tcp://:::%d" % p).is_listening
-
-
 def test_find_digest1_on_client(host):
     ansible_vars = get_ansible_vars(host)
     if ansible_vars['inventory_hostname'] == 'client1':
@@ -129,3 +89,15 @@ def test_find_digest2_on_client(host):
         f = host.file('/tmp/digest2')
 
         assert f.exists
+
+
+def test_influxdb_series(host):
+    ansible_vars = get_ansible_vars(host)
+    if ansible_vars['inventory_hostname'] == 'client1':
+        return
+    format_str = "influx -username '%s' -password '%s' -host '%s' -database '%s' -execute '%s'"
+    cmd = format_str % ('foo', 'PassWord', '192.168.21.200', 'mydatabase', 'show series')
+    output = host.check_output(cmd)
+
+    assert 'cpu,cpu=cpu-total,host=client1' in output
+    assert 'cpu,cpu=cpu-total,host=server1' in output

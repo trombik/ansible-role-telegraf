@@ -26,30 +26,17 @@
       changed_when: false
       when:
         - ansible_os_family == 'OpenBSD'
+
   roles:
     - role: docker
       when:
         - ansible_virtualization_type == 'docker'
-    - role: trombik.template_role
-  vars:
-    os_template_role_flags:
-      OpenBSD: -4
-      FreeBSD: ""
-      Debian: ""
-      RedHat: ""
+    - role: trombik.influxdb
+      when:
+        - ansible_hostname == 'server1'
+    - role: ansible-role-telegraf
+    - role: trombik.grafana
+      when:
+        - ansible_hostname == 'server1'
 
-    # on RedHat, non-default port is not allowed to listen on
-    # on FreeBSD, sshd from the base and one from the package are both running
-    os_ports:
-      OpenBSD: [22, 10022]
-      FreeBSD: [10022]
-      Debian: [22, 10022]
-      RedHat: [22]
-    template_role_flags: "{{ os_template_role_flags[ansible_os_family] }}"
-    template_role_extra_groups:
-      - bin
-    template_role_config: |
-      UseDNS no
-      {% for p in os_ports[ansible_os_family] %}
-      Port {{ p }}
-      {% endfor %}
+  vars:
