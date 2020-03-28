@@ -13,6 +13,7 @@ None
 | `telegraf_user` | User name of `telegraf` | `{{ __telegraf_user }}` |
 | `telegraf_group` | Group name of `telegraf` | `{{ __telegraf_group }}` |
 | `telegraf_package` | Package name of `telegraf` | `{{ __telegraf_package }}` |
+| `telegraf_extra_packages` | List of extra packages to install | `[]` |
 | `telegraf_log_dir` | Path to log directory | `{{ __telegraf_log_dir }}` |
 | `telegraf_db_dir` | Path to database directory | `{{ __telegraf_db_dir }}` |
 | `telegraf_service` | Service name of `telegraf` | `{{ __telegraf_service }}` |
@@ -98,6 +99,14 @@ None
         TELEGRAF_OPTS="-debug"
       OpenBSD: -debug
     telegraf_flags: "{{ os_telegraf_flags[ansible_os_family] }}"
+    os_telegraf_packages:
+      FreeBSD:
+        - net-mgmt/net-snmp
+      OpenBSD:
+        - net-snmp
+      Debian:
+        - snmp
+    telegraf_extra_packages: "{{ os_telegraf_packages[ansible_os_family] }}"
     telegraf_config: |
       [global_tags]
       [agent]

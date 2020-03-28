@@ -1,5 +1,10 @@
 ---
 
+- name: Install telegraf_extra_packages
+  pkgng:
+    name: "{{ telegraf_extra_packages }}"
+    state: present
+
 - name: Install telegraf
   pkgng:
     name: "{{ telegraf_package }}"

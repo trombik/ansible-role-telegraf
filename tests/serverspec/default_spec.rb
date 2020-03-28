@@ -12,17 +12,28 @@ log_file = "#{log_dir}/telegraf.log"
 db_dir = "/var/lib/telegraf"
 default_user = "root"
 default_group = "root"
+extra_packages = []
 
 case os[:family]
 when "freebsd"
   config = "/usr/local/etc/telegraf.conf"
   db_dir = "/var/db/telegraf"
   default_group = "wheel"
+  extra_packages = ["net-mgmt/net-snmp"]
 when "openbsd"
   user = "_telegraf"
   group = "_telegraf"
   db_dir = "/var/telegraf"
   default_group = "wheel"
+  extra_packages = ["net-snmp"]
+when "ubuntu"
+  extra_packages = ["snmp"]
+end
+
+extra_packages.each do |p|
+  describe package p do
+    it { should be_installed }
+  end
 end
 
 describe package(package) do
