@@ -1,5 +1,10 @@
 ---
 
+- name: Install telegraf_extra_packages
+  apt:
+    name: "{{ telegraf_extra_packages }}"
+    state: present
+
 - name: Install telegraf
   apt:
     name: "{{ telegraf_package }}"

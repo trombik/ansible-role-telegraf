@@ -1,5 +1,10 @@
 ---
 
+- name: Install telegraf_extra_packages
+  openbsd_pkg:
+    name: "{{ telegraf_extra_packages }}"
+    state: present
+
 - name: Install telegraf
   openbsd_pkg:
     name: "{{ telegraf_package }}"

@@ -32,6 +32,14 @@
         TELEGRAF_OPTS="-debug"
       OpenBSD: -debug
     telegraf_flags: "{{ os_telegraf_flags[ansible_os_family] }}"
+    os_telegraf_packages:
+      FreeBSD:
+        - net-mgmt/net-snmp
+      OpenBSD:
+        - net-snmp
+      Debian:
+        - snmp
+    telegraf_extra_packages: "{{ os_telegraf_packages[ansible_os_family] }}"
     telegraf_config: |
       [global_tags]
       [agent]
